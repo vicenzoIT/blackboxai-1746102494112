@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Milk Tea Shop Admin Panel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-['Roboto'] min-h-screen p-6">
+  <header class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">Milk Tea Shop Admin Panel</h1>
+  </header>
+  <main>
+    <section>
+      <h2 class="text-xl font-semibold mb-4">Orders</h2>
+      <table class="min-w-full bg-white rounded shadow">
+        <thead>
+          <tr>
+            <th class="py-2 px-4 border-b border-gray-200 text-left">Order ID</th>
+            <th class="py-2 px-4 border-b border-gray-200 text-left">Customer</th>
+            <th class="py-2 px-4 border-b border-gray-200 text-left">Items</th>
+            <th class="py-2 px-4 border-b border-gray-200 text-left">Total</th>
+            <th class="py-2 px-4 border-b border-gray-200 text-left">Status</th>
+            <th class="py-2 px-4 border-b border-gray-200 text-left">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="orders-table-body">
+          <!-- Orders will be populated here -->
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <script>
+    const apiBase = 'http://localhost:3000';
+
+    async function fetchOrders() {
+      const res = await fetch(\`\${apiBase}/orders\`);
+      const orders = await res.json();
+      const tbody = document.getElementById('orders-table-body');
+      tbody.innerHTML = '';
+        orders.forEach(order => {
+        const tr = document.createElement('tr');
+        tr.className = 'border-b border-gray-200';
+        tr.innerHTML = `
+          <td class="py-2 px-4">${order.id}</td>
+          <td class="py-2 px-4">${order.customerName}</td>
+          <td class="py-2 px-4">${order.items.map(i => i.name + ' x' + i.quantity).join(', ')}</td>
+          <td class="py-2 px-4">₱${order.total.toFixed(2)}</td>
+          <td class="py-2 px-4">${order.status}</td>
+          <td class="py-2 px-4">
+            <select onchange="updateStatus(${order.id}, this.value)" class="border rounded px-2 py-1">
+              <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
+              <option value="Preparing" ${order.status === 'Preparing' ? 'selected' : ''}>Preparing</option>
+              <option value="Ready" ${order.status === 'Ready' ? 'selected' : ''}>Ready</option>
+              <option value="Completed" ${order.status === 'Completed' ? 'selected' : ''}>Completed</option>
+            </select>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function updateStatus(orderId, status) {
+      await fetch(\`\${apiBase}/orders/\${orderId}\`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      });
+      fetchOrders();
+    }
+
+    fetchOrders();
+    setInterval(fetchOrders, 5000); // Refresh every 5 seconds
+  </script>
+</body>
+</html>
