@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Milk Tea Shop Mobile App</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 font-['Roboto'] min-h-screen flex flex-col">
+
+  <!-- Landing/Login Page -->
+  <section id="login-page" class="flex flex-col items-center justify-center flex-grow p-6">
+    <h1 class="text-3xl font-bold mb-6 text-gray-800">Welcome to Milk Tea Shop</h1>
+    <button id="login-btn" class="w-full max-w-xs bg-indigo-600 text-white py-3 rounded mb-4 hover:bg-indigo-700 transition">Log In</button>
+    <button id="signup-btn" class="w-full max-w-xs border border-indigo-600 text-indigo-600 py-3 rounded hover:bg-indigo-100 transition">Sign Up</button>
+  </section>
+
+  <!-- Dashboard Page -->
+  <section id="dashboard-page" class="hidden flex-col p-6">
+    <h2 class="text-2xl font-semibold mb-4 text-gray-800">Best Sellers</h2>
+    <div id="best-sellers" class="grid grid-cols-2 gap-4">
+      <!-- Best seller items will be inserted here -->
+    </div>
+    <button id="go-to-menu" class="mt-6 bg-green-600 text-white py-3 rounded hover:bg-green-700 transition">Go to Menu</button>
+  </section>
+
+  <!-- Menu Page -->
+  <section id="menu-page" class="hidden flex-col p-6">
+    <h2 class="text-2xl font-semibold mb-4 text-gray-800">Menu</h2>
+    <div id="menu-items" class="grid grid-cols-2 gap-4 mb-6">
+      <!-- Menu items will be inserted here -->
+    </div>
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-300 p-4 flex justify-between items-center">
+      <div>
+        <span class="font-semibold">Cart:</span> <span id="cart-count">0</span> items
+      </div>
+      <button id="checkout-btn" class="bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700 transition">Checkout</button>
+    </div>
+  </section>
+
+  <script>
+    // Mock data
+    const bestSellers = [
+      { id: 1, name: 'Classic Milk Tea', price: 120, image: 'https://images.pexels.com/photos/461430/pexels-photo-461430.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=150' },
+      { id: 2, name: 'Taro Milk Tea', price: 130, image: 'https://images.pexels.com/photos/302680/pexels-photo-302680.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=150' },
+      { id: 3, name: 'Matcha Milk Tea', price: 140, image: 'https://images.pexels.com/photos/414645/pexels-photo-414645.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=150' },
+      { id: 4, name: 'Brown Sugar Milk Tea', price: 150, image: 'https://images.pexels.com/photos/302680/pexels-photo-302680.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=150' }
+    ];
+
+    const menuItems = [
+      { id: 1, name: 'Classic Milk Tea', price: 120, image: 'https://images.pexels.com/photos/461430/pexels-photo-461430.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=150' },
+      { id: 2, name: 'Taro Milk Tea', price: 130, image: 'https://images.pexels.com/photos/302680/pexels-photo-302680.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=150' },
+      { id: 3, name: 'Matcha Milk Tea', price: 140, image: 'https://images.pexels.com/photos/414645/pexels-photo-414645.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=150' },
+      { id: 4, name: 'Brown Sugar Milk Tea', price: 150, image: 'https://images.pexels.com/photos/302680/pexels-photo-302680.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=150' },
+      { id: 5, name: 'Wintermelon Milk Tea', price: 135, image: 'https://images.pexels.com/photos/302680/pexels-photo-302680.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=150' },
+      { id: 6, name: 'Honeydew Milk Tea', price: 130, image: 'https://images.pexels.com/photos/302680/pexels-photo-302680.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=150' }
+    ];
+
+    // State
+    let cart = [];
+
+    // Elements
+    const loginPage = document.getElementById('login-page');
+    const dashboardPage = document.getElementById('dashboard-page');
+    const menuPage = document.getElementById('menu-page');
+    const bestSellersContainer = document.getElementById('best-sellers');
+    const menuItemsContainer = document.getElementById('menu-items');
+    const cartCount = document.getElementById('cart-count');
+
+    // Functions
+    function showPage(page) {
+      loginPage.classList.add('hidden');
+      dashboardPage.classList.add('hidden');
+      menuPage.classList.add('hidden');
+      page.classList.remove('hidden');
+    }
+
+    function renderBestSellers() {
+      bestSellersContainer.innerHTML = '';
+      bestSellers.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'bg-white rounded shadow p-4 flex flex-col items-center';
+        div.innerHTML = `
+          <img src="${item.image}" alt="${item.name}" class="w-24 h-24 object-cover rounded mb-2" />
+          <h3 class="font-semibold text-lg">${item.name}</h3>
+          <p class="text-indigo-600 font-bold">₱${item.price}</p>
+        `;
+        bestSellersContainer.appendChild(div);
+      });
+    }
+
+    function renderMenu() {
+      menuItemsContainer.innerHTML = '';
+      menuItems.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'bg-white rounded shadow p-4 flex flex-col items-center';
+        div.innerHTML = `
+          <img src="${item.image}" alt="${item.name}" class="w-24 h-24 object-cover rounded mb-2" />
+          <h3 class="font-semibold text-lg">${item.name}</h3>
+          <p class="text-indigo-600 font-bold mb-2">₱${item.price}</p>
+          <button class="bg-indigo-600 text-white py-1 px-3 rounded hover:bg-indigo-700 transition" onclick="addToCart(${item.id})">Add to Cart</button>
+        `;
+        menuItemsContainer.appendChild(div);
+      });
+    }
+
+    function addToCart(itemId) {
+      const item = menuItems.find(i => i.id === itemId);
+      if (!item) return;
+      const cartItem = cart.find(i => i.id === itemId);
+      if (cartItem) {
+        cartItem.quantity++;
+      } else {
+        cart.push({ ...item, quantity: 1 });
+      }
+      updateCartCount();
+    }
+
+    function updateCartCount() {
+      const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+      cartCount.textContent = count;
+    }
+
+    // Event Listeners
+    document.getElementById('login-btn').addEventListener('click', () => {
+      // For demo, no real auth, just go to dashboard
+      showPage(dashboardPage);
+      renderBestSellers();
+    });
+
+    document.getElementById('signup-btn').addEventListener('click', () => {
+      alert('Signup functionality is not implemented in this demo.');
+    });
+
+    document.getElementById('go-to-menu').addEventListener('click', () => {
+      showPage(menuPage);
+      renderMenu();
+    });
+
+    document.getElementById('checkout-btn').addEventListener('click', () => {
+      if (cart.length === 0) {
+        alert('Your cart is empty.');
+        return;
+      }
+      alert('Checkout functionality is not implemented in this demo.');
+    });
+
+    // Initialize
+    showPage(loginPage);
+  </script>
+</body>
+</html>
